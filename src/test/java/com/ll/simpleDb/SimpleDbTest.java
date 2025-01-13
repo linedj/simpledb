@@ -1,21 +1,6 @@
 package com.ll.simpleDb;
 
 import org.junit.jupiter.api.*;
-
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class SimpleDbTest {
     private static SimpleDb simpleDb;
@@ -32,6 +17,11 @@ public class SimpleDbTest {
     public void beforeEach() {
 //        truncateArticleTable();
 //        makeArticleTestData();
+    }
+
+    @Test
+    void t000() {
+
     }
 
     private static void createArticleTable() {
@@ -533,4 +523,4 @@ public class SimpleDbTest {
 //
 //        assertThat(newCount).isEqualTo(oldCount + 1);
 //    }
-//}
+}
