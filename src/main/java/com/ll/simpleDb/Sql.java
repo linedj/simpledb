@@ -31,6 +31,10 @@ public class Sql {
         return this;
     }
 
+    public long insert() {
+        return simpleDb.insert(sqlBuilder.toString(), params);
+    }
+
     public int update() {
         return simpleDb.update(sqlBuilder.toString(), params);
     }
