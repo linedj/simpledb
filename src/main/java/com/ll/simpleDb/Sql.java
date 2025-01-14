@@ -31,12 +31,8 @@ public class Sql {
         return this;
     }
 
-    public long insert() {
-        return 1;
-    }
-
     public int update() {
-        return 3;
+        return simpleDb.update(sqlBuilder.toString(), params);
     }
 
     public int delete() {
