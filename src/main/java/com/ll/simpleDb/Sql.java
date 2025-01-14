@@ -87,7 +87,6 @@ public class Sql {
     }
 
     public Map<String, Object> selectRow() {
-
         return simpleDb.selectRow(sqlBuilder.toString());
     }
 

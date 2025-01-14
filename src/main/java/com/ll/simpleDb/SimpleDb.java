@@ -67,13 +67,14 @@ public class SimpleDb {
                 else if(cls == LocalDateTime.class) return cls.cast(rs.getTimestamp(1).toLocalDateTime());
                 else if(cls == Map.class) {
                     Map<String, Object> row = new HashMap<>();
-                    row.put("id", 1L);
-                    row.put("title", "제목1");
-                    row.put("body", "내용1");
-                    row.put("createdDate", LocalDateTime.now());
-                    row.put("modifiedDate", LocalDateTime.now());
-                    row.put("isBlind", false);
 
+                    ResultSetMetaData metaData = rs.getMetaData();
+                    int columnCount = metaData.getColumnCount();
+
+                    for (int i = 1; i <= columnCount; i++) {
+                        String cname = metaData.getColumnName(i);
+                        row.put(cname, rs.getObject(cname));
+                    }
                     return cls.cast(row);
                 }
             }
