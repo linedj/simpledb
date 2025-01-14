@@ -57,4 +57,8 @@ public class Sql {
     public Long selectLong() {
         return 1L;
     }
+
+    public Boolean selectBoolean() {
+        return Boolean.FALSE;
+    }
 }
