@@ -66,4 +66,14 @@ public class Sql {
     public Boolean selectBoolean() {
         return simpleDb.selectBoolean(sqlBuilder.toString(), params);
     }
+
+    public void appendIn(String sql, Object... args) {
+        String inCluase = Arrays.stream(args)
+                .map(o -> "?")
+                .collect(Collectors.joining(", "));
+
+        String replacedSql = sql.replaceAll("\\?", inCluase);
+        this.params.addAll(Arrays.stream(args).toList());
+        this.sqlBuilder.append(replacedSql);
+    }
 }
