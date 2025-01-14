@@ -155,4 +155,11 @@ public class SimpleDb {
         }
     }
 
+    public List<Long> selectLongs(String sql, List<Object> params) {
+        List<Map<String, Object>> maps = selectRows(sql, params);
+
+        return maps.stream()
+                .map(map-> (Long)map.values().iterator().next())
+                .toList();
+    }
 }
