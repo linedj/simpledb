@@ -76,6 +76,7 @@ public class SimpleDb {
 
     private <T> T _run(String sql, Class<T> cls, List<Object> params) {
         try (PreparedStatement stmt = connection.prepareStatement(sql,  Statement.RETURN_GENERATED_KEYS)) {
+            setParams(stmt, params);
 
             if(sql.startsWith("SELECT")) {
                 ResultSet rs = stmt.executeQuery(); // 실제 반영된 로우 수. insert, update, delete
@@ -84,7 +85,6 @@ public class SimpleDb {
             }
             if(sql.startsWith("INSERT")) {
                 if(cls == Long.class) {
-                    setParams(stmt, params);
                     stmt.executeUpdate();
                     ResultSet rs = stmt.getGeneratedKeys();
                     if (rs.next()) {
@@ -93,7 +93,6 @@ public class SimpleDb {
                 }
             }
 
-            setParams(stmt, params);
             return cls.cast(stmt.executeUpdate());
 
         } catch (SQLException e) {
