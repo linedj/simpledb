@@ -87,7 +87,7 @@ public class SimpleDbTest {
 
         assertThat(newId).isGreaterThan(0);
     }
-
+    //
     @Test
     @DisplayName("update")
     public void t002() {
@@ -111,7 +111,7 @@ public class SimpleDbTest {
 
         assertThat(affectedRowsCount).isEqualTo(3);
     }
-
+    //
     @Test
     @DisplayName("delete")
     public void t003() {
@@ -133,7 +133,7 @@ public class SimpleDbTest {
 
         assertThat(affectedRowsCount).isEqualTo(2);
     }
-
+    //
     @Test
     @DisplayName("selectRows")
     public void t004() {
@@ -163,7 +163,7 @@ public class SimpleDbTest {
             assertThat(articleRow.get("isBlind")).isEqualTo(false);
         });
     }
-
+    //
     @Test
     @DisplayName("selectRow")
     public void t005() {
@@ -224,6 +224,25 @@ public class SimpleDbTest {
     }
 
     @Test
+    @DisplayName("selectString")
+    public void t008() {
+        Sql sql = simpleDb.genSql();
+        /*
+        == rawSql ==
+        SELECT title
+        FROM article
+        WHERE id = 1
+        */
+        sql.append("SELECT title")
+                .append("FROM article")
+                .append("WHERE id = 1");
+
+        String title = sql.selectString();
+
+        assertThat(title).isEqualTo("제목1");
+    }
+
+    @Test
     @DisplayName("selectBoolean")
     public void t009() {
         Sql sql = simpleDb.genSql();
@@ -271,7 +290,7 @@ public class SimpleDbTest {
 
         assertThat(isBlind).isEqualTo(false);
     }
-//
+
 //    @Test
 //    @DisplayName("select, LIKE 사용법")
 //    public void t012() {
