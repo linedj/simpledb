@@ -4,10 +4,7 @@ import lombok.Setter;
 
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SimpleDb {
     private String dbUrl;
@@ -34,30 +31,42 @@ public class SimpleDb {
         }
     }
 
-    public String selectString(String sql) {
-        return _run(sql, String.class);
+    public int delete(String sql, List<Object> params) {
+        return _run(sql, Integer.class, params);
     }
 
-    public Long selectLong(String sql) {
-        return _run(sql, Long.class);
+    public Map<String, Object> selectRow(String sql, List<Object> params) {
+        return _run(sql, Map.class, params);
     }
 
-    public boolean selectBoolean(String sql) {
+    public List<Map<String, Object>> selectRows(String string, List<Object> params) {
+        return _run(string, List.class, params);
+    }
+
+    public String selectString(String sql, List<Object> params) {
+        return _run(sql, String.class, params);
+    }
+
+    public Long selectLong(String sql, List<Object> params) {
+        return _run(sql, Long.class, params);
+    }
+
+    public boolean selectBoolean(String sql, List<Object> params) {
         System.out.println("sql : " + sql);
-        return _run(sql, Boolean.class);
+        return _run(sql, Boolean.class, params);
     }
-    public LocalDateTime selectDatetime(String sql) {
-        return _run(sql, LocalDateTime.class);
+    public LocalDateTime selectDatetime(String sql, List<Object> params) {
+        return _run(sql, LocalDateTime.class, params);
     }
-    public void run(String sql, Object... params) {
-        _run(sql, Integer.class , params);
+    public int run(String sql, Object... params) {
+        return _run(sql, Integer.class , Arrays.stream(params).toList());
     }
 
     public Sql genSql() {
         return new Sql(this);
     }
 
-    private <T> T _run(String sql, Class<T> cls, Object... params) {
+    private <T> T _run(String sql, Class<T> cls, List<Object> params) {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             if(sql.startsWith("SELECT")) {
@@ -66,7 +75,6 @@ public class SimpleDb {
                 return parseResultSet(rs, cls);
             }
             setParams(stmt, params);
-
             return cls.cast(stmt.executeUpdate());
 
         } catch (SQLException e) {
@@ -123,17 +131,10 @@ public class SimpleDb {
         return row;
     }
 
-    private void setParams(PreparedStatement stmt, Object... params) throws SQLException {
-        for (int i = 0; i < params.length; i++) {
-            stmt.setObject(i + 1, params[i]); // '?' 위치에 값 설정
+    private void setParams(PreparedStatement stmt, List<Object> params) throws SQLException {
+        for (int i = 0; i < params.size(); i++) {
+            stmt.setObject(i + 1, params.get(i)); // '?' 위치에 값 설정
         }
     }
 
-    public Map<String, Object> selectRow(String sql) {
-        return _run(sql, Map.class);
-    }
-
-    public List<Map<String, Object>> selectRows(String string) {
-        return _run(string, List.class);
-    }
 }
