@@ -1,7 +1,6 @@
 package com.ll.simpleDb;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -43,8 +42,7 @@ public class Sql {
         return simpleDb.delete(sqlBuilder.toString(), params);
     }
 
-    public List<Article> selectRows(Class<?> cls){
-
+    public <T> List<T> selectRows(Class<T> cls) {
         return simpleDb.selectRows(sqlBuilder.toString(), params, cls);
     }
 

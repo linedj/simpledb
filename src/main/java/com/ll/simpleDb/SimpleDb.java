@@ -51,10 +51,10 @@ public class SimpleDb {
         return _run(sql, List.class, params);
     }
 
-    public List<Article> selectRows(String sql, List<Object> params, Class<?> cls) {
-        return selectRows(sql, params)
-                .stream()
-                .map(Article::fromMap)
+    public <T> List<T> selectRows(String sql, List<Object> params, Class<T> cls) {
+
+        return selectRows(sql, params).stream()
+                .map(map -> Util.mapToObj(map, cls))
                 .toList();
     }
 
@@ -67,14 +67,15 @@ public class SimpleDb {
     }
 
     public boolean selectBoolean(String sql, List<Object> params) {
-        System.out.println("sql : " + sql);
         return _run(sql, Boolean.class, params);
     }
+
     public LocalDateTime selectDatetime(String sql, List<Object> params) {
         return _run(sql, LocalDateTime.class, params);
     }
+
     public int run(String sql, Object... params) {
-        return _run(sql, Integer.class , Arrays.stream(params).toList());
+        return _run(sql, Integer.class, Arrays.stream(params).toList());
     }
 
     public Sql genSql() {
@@ -82,16 +83,18 @@ public class SimpleDb {
     }
 
     private <T> T _run(String sql, Class<T> cls, List<Object> params) {
-        try (PreparedStatement stmt = connection.prepareStatement(sql,  Statement.RETURN_GENERATED_KEYS)) {
+        System.out.println("sql : " + sql);
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             setParams(stmt, params);
 
-            if(sql.startsWith("SELECT")) {
+            if (sql.startsWith("SELECT")) {
                 ResultSet rs = stmt.executeQuery(); // 실제 반영된 로우 수. insert, update, delete
-
                 return parseResultSet(rs, cls);
             }
-            if(sql.startsWith("INSERT")) {
-                if(cls == Long.class) {
+
+            if (sql.startsWith("INSERT")) {
+                if (cls == Long.class) {
+
                     stmt.executeUpdate();
                     ResultSet rs = stmt.getGeneratedKeys();
                     if (rs.next()) {
@@ -108,34 +111,30 @@ public class SimpleDb {
     }
 
     private <T> T parseResultSet(ResultSet rs, Class<T> cls) throws SQLException {
-
-        if(cls == Boolean.class) {
+        if (cls == Boolean.class) {
             rs.next();
             return cls.cast((rs.getBoolean(1)));
-        }
-        else if(cls == String.class){
+        } else if (cls == String.class) {
             rs.next();
             return cls.cast(rs.getString(1));
-        }
-        else if(cls == Long.class){
+        } else if (cls == Long.class) {
             rs.next();
             return cls.cast(rs.getLong(1));
-        }
-        else if(cls == LocalDateTime.class){
+        } else if (cls == LocalDateTime.class) {
             rs.next();
             return cls.cast(rs.getTimestamp(1).toLocalDateTime());
-        }
-        else if(cls == Map.class) {
+        } else if (cls == Map.class) {
             rs.next();
             return cls.cast(rsRowToMap(rs));
 
         } else if (cls == List.class) {
-            List<Map<String,Object>> rows = new ArrayList<>();
-            while(rs.next()){
+            List<Map<String, Object>> rows = new ArrayList<>();
+
+            while (rs.next()) {
                 rows.add(rsRowToMap(rs));
             }
-            return cls.cast(rows);
 
+            return cls.cast(rows);
         }
 
         throw new RuntimeException();
@@ -150,7 +149,7 @@ public class SimpleDb {
 
         for (int i = 1; i <= columnCount; i++) {
             String cname = metaData.getColumnName(i);
-            row.put(cname, rs.getObject(cname));
+            row.put(cname, rs.getObject(i));
         }
 
         return row;
@@ -166,7 +165,7 @@ public class SimpleDb {
         List<Map<String, Object>> maps = selectRows(sql, params);
 
         return maps.stream()
-                .map(map-> (Long)map.values().iterator().next())
+                .map(map -> (Long) map.values().iterator().next())
                 .toList();
     }
 }
