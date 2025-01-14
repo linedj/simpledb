@@ -43,6 +43,11 @@ public class Sql {
         return simpleDb.delete(sqlBuilder.toString(), params);
     }
 
+    public List<Article> selectRows(Class<?> cls){
+
+        return simpleDb.selectRows(sqlBuilder.toString(), params, cls);
+    }
+
     public List<Map<String, Object>> selectRows() {
         return simpleDb.selectRows(sqlBuilder.toString(), params);
     }
