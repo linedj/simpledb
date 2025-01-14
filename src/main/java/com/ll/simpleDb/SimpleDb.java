@@ -1,4 +1,3 @@
-
 package com.ll.simpleDb;
 
 import lombok.Setter;
@@ -32,19 +31,25 @@ public class SimpleDb {
 
     public boolean selectBoolean(String sql) {
         System.out.println("sql : " + sql);
-        return (boolean)run(sql);
+        return (boolean) _run(sql, 0);
     }
 
-    // SQL 실행 (PreparedStatement와 파라미터)
-    public Object run(String sql, Object... params) {
+    public void run(String sql, Object... params) {
+        _run(sql, 1, params);
+    }
+
+    // type - 0 : boolean, 1 : String
+    public Object _run(String sql, int type, Object... params) {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             if(sql.startsWith("SELECT")) {
                 ResultSet rs = stmt.executeQuery(); // 실제 반영된 로우 수. insert, update, delete
                 rs.next();
-                return rs.getBoolean(1);
+                if(type == 0) return rs.getBoolean(1);
+                else if(type == 1) return rs.getString(1);
             }
-            setParams(stmt, params); // 파라미터 설정
+
+            setParams(stmt, params);
             return stmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -52,28 +57,17 @@ public class SimpleDb {
         }
     }
 
-    // PreparedStatement에 파라미터 바인딩
     private void setParams(PreparedStatement stmt, Object... params) throws SQLException {
         for (int i = 0; i < params.length; i++) {
             stmt.setObject(i + 1, params[i]); // '?' 위치에 값 설정
         }
     }
-//
-//    // 데이터베이스 연결 종료
-//    public void close() {
-//        if (connection != null) {
-//            try {
-//                connection.close();
-//                if (devMode) {
-//                    System.out.println("데이터베이스 연결 종료.");
-//                }
-//            } catch (SQLException e) {
-//                throw new RuntimeException("데이터베이스 연결 종료 실패: " + e.getMessage());
-//            }
-//        }
-//    }
 
     public Sql genSql() {
         return new Sql(this);
+    }
+
+    public String selectString(String sql) {
+        return (String) _run(sql, 1);
     }
 }
