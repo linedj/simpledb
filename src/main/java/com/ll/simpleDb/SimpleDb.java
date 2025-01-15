@@ -174,6 +174,10 @@ public class SimpleDb {
     }
 
     public void close() {
-
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
