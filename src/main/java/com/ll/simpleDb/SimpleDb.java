@@ -10,7 +10,7 @@ public class SimpleDb {
     private String dbUrl;
     private String dbUser;
     private String dbPassword;
-    private Connection connection;
+    private Map<String, Connection> connections;
     @Setter
     private boolean devMode = false;
 
@@ -18,16 +18,27 @@ public class SimpleDb {
     public SimpleDb(String host, String user, String password, String dbName) {
         this.dbUrl = "jdbc:mysql://" + host + ":3306/" + dbName; // JDBC URL
         this.dbUser = user;                                    // 사용자 이름
-        this.dbPassword = password;                            // 비밀번호
+        this.dbPassword = password;
+        // 비밀번호
 
-        // 연결 초기화
+        connections = new HashMap<>();
+
+    }
+
+    private Connection getCurrentThreadConnection() {
+
         try {
-            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-            if (devMode) {
-                System.out.println("데이터베이스에 성공적으로 연결되었습니다.");
+            Connection conn = connections.get(Thread.currentThread().getName());
+            if (conn == null) {
+                Connection currentThreadConn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+                connections.put(Thread.currentThread().getName(), currentThreadConn);
+
+                return currentThreadConn;
             }
+            return conn;
+
         } catch (SQLException e) {
-            throw new RuntimeException("데이터베이스 연결 실패: " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
@@ -88,6 +99,8 @@ public class SimpleDb {
 
     private <T> T _run(String sql, Class<T> cls, List<Object> params) {
         System.out.println("sql : " + sql);
+        Connection connection = getCurrentThreadConnection();
+
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             setParams(stmt, params);
 
@@ -174,16 +187,29 @@ public class SimpleDb {
     }
 
     public void close() {
+
         try {
-            connection.close();
+            Connection conn = getCurrentThreadConnection();
+            conn.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     public void startTransaction() {
+        try {
+            Connection conn = getCurrentThreadConnection();
+            conn.setAutoCommit(false);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void rollback() {
+        try {
+            getCurrentThreadConnection().rollback();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
