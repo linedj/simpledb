@@ -189,8 +189,7 @@ public class SimpleDb {
     public void close() {
 
         try {
-            Connection conn = getCurrentThreadConnection();
-            conn.close();
+            getCurrentThreadConnection().close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -198,8 +197,7 @@ public class SimpleDb {
 
     public void startTransaction() {
         try {
-            Connection conn = getCurrentThreadConnection();
-            conn.setAutoCommit(false);
+            getCurrentThreadConnection().setAutoCommit(false);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -208,6 +206,15 @@ public class SimpleDb {
     public void rollback() {
         try {
             getCurrentThreadConnection().rollback();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void commit() {
+        try {
+            getCurrentThreadConnection().commit();
+            getCurrentThreadConnection().setAutoCommit(true);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
